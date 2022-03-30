@@ -1,10 +1,8 @@
 package br.com.alura.orgs.database
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room.*
+import androidx.room.migration.AutoMigrationSpec
 import br.com.alura.orgs.database.converter.Converters
 import br.com.alura.orgs.database.dao.ProdutoDao
 import br.com.alura.orgs.database.dao.UsuarioDao
@@ -16,11 +14,14 @@ import br.com.alura.orgs.model.Usuario
         Produto::class,
         Usuario::class
     ],
-    version = 1,
+    version = 2,
+    autoMigrations = [AutoMigration(from = 1 , to = 2, spec = AppDatabase.MyAutoMigration::class)],
     exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
+
+    class MyAutoMigration : AutoMigrationSpec
 
     abstract fun produtoDao(): ProdutoDao
     abstract fun usarioDao():UsuarioDao
