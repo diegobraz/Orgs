@@ -41,6 +41,7 @@ class LoginActivity : AppCompatActivity() {
                         preferences[stringPreferencesKey("userId")] = usuario.id
                     }
                     vaiPara(ListaProdutosActivity::class.java)
+                    finish()
                 } ?: Toast.makeText(
                     this@LoginActivity,
                     "Usuario ou senha invalida", Toast.LENGTH_SHORT
