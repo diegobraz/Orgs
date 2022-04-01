@@ -24,7 +24,7 @@ abstract class AppDatabase : RoomDatabase() {
     class MyAutoMigration : AutoMigrationSpec
 
     abstract fun produtoDao(): ProdutoDao
-    abstract fun usarioDao():UsuarioDao
+    abstract fun usuarioDao():UsuarioDao
 
     companion object {
         @Volatile

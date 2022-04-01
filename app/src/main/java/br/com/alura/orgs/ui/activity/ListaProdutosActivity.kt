@@ -60,10 +60,13 @@ class ListaProdutosActivity : UsuarioBaseActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.menu_sair_do_app ->{
-                deslogaUsuario()
+        when (item.itemId) {
+            R.id.menu_sair_do_app -> {
+                lifecycleScope.launch {
+                    deslogaUsuario()
+                }
             }
         }
         return super.onOptionsItemSelected(item)

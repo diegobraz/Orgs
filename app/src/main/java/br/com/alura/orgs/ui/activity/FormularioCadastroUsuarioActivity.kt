@@ -16,7 +16,7 @@ class FormularioCadastroUsuarioActivity : AppCompatActivity() {
     }
 
     private val dao by lazy{
-        AppDatabase.instancia(this).usarioDao()
+        AppDatabase.instancia(this).usuarioDao()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

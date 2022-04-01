@@ -2,7 +2,6 @@ package br.com.alura.orgs.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -14,49 +13,46 @@ import br.com.alura.orgs.preferences.dataStore
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-abstract class UsuarioBaseActivity: AppCompatActivity() {
+abstract class UsuarioBaseActivity : AppCompatActivity() {
 
     private val usuarioDao by lazy {
-        AppDatabase.instancia(this).usarioDao()
+        AppDatabase.instancia(this).usuarioDao()
     }
+    private var _usuario: MutableStateFlow<Usuario?> = MutableStateFlow(null)
+    protected var usuario: StateFlow<Usuario?> = _usuario
 
-    private var _usuario : MutableStateFlow<Usuario?> = MutableStateFlow(null)
-    protected var usuario : StateFlow<Usuario?> = _usuario
-
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
-        lifecycleScope.launch{
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
             verificaUsuarioLogado()
         }
     }
 
-    private suspend fun buscaUsuario(userId: String) {
-           _usuario.value = usuarioDao
-               .buscaPorId(usuarioId = userId)
-               .firstOrNull()
+    private suspend fun verificaUsuarioLogado() {
+        dataStore.data.collect { preferences ->
+            preferences[stringPreferencesKey("userId")]?.let { usuarioId ->
+                buscaUsuario(usuarioId)
+            } ?: vaiParaLogin()
+        }
     }
 
-    protected fun deslogaUsuario() {
-        lifecycleScope.launch {
-            dataStore.edit { preferences ->
-                preferences.remove(stringPreferencesKey("userId"))
-            }
+    private suspend fun buscaUsuario(usuarioId: String) {
+        _usuario.value = usuarioDao
+            .buscaPorId(usuarioId)
+            .firstOrNull()
+    }
+
+    protected suspend fun deslogaUsuario() {
+        dataStore.edit { preferences ->
+            preferences.remove(stringPreferencesKey("userId"))
         }
     }
 
     private fun vaiParaLogin() {
-        vaiPara(LoginActivity::class.java){
+        vaiPara(LoginActivity::class.java) {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
         finish()
-    }
-
-    private suspend fun verificaUsuarioLogado() {
-        dataStore.data.collect { preferences ->
-            preferences[stringPreferencesKey("userId")]?.let { userId ->
-                buscaUsuario(userId)
-            } ?: vaiParaLogin()
-        }
     }
 
 }
