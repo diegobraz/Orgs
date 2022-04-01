@@ -13,10 +13,11 @@ import br.com.alura.orgs.model.Produto
 import br.com.alura.orgs.preferences.dataStore
 import br.com.alura.orgs.ui.dialog.FormularioImagemDialog
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
-class FormularioProdutoActivity : AppCompatActivity() {
+class FormularioProdutoActivity : UsuarioBaseActivity() {
 
     private val binding by lazy {
         ActivityFormularioProdutoBinding.inflate(layoutInflater)
@@ -46,12 +47,10 @@ class FormularioProdutoActivity : AppCompatActivity() {
         }
         tentaCarregarProduto()
         lifecycleScope.launch {
-            dataStore.data.collect { preferences ->
-                preferences[stringPreferencesKey("userId")]?.let { userId ->
-                    usuarioDao.buscaPorId(usuarioId = userId).collect {
-                        Log.i("ListaProdutos", "onCreate: ${it}")
-                    }
-                }
+            usuario
+                .filterNotNull()
+                .collect{
+
             }
         }
     }

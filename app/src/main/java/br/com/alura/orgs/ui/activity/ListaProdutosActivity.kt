@@ -16,13 +16,12 @@ import br.com.alura.orgs.extensions.vaiPara
 import br.com.alura.orgs.preferences.dataStore
 import br.com.alura.orgs.ui.recyclerview.adapter.ListaProdutosAdapter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
-class ListaProdutosActivity : AppCompatActivity() {
+class ListaProdutosActivity : UsuarioBaseActivity() {
 
     private val adapter = ListaProdutosAdapter(context = this)
     private val binding by lazy {
@@ -33,9 +32,6 @@ class ListaProdutosActivity : AppCompatActivity() {
         db.produtoDao()
     }
 
-    private val usuarioDao by lazy {
-        AppDatabase.instancia(this).usarioDao()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,23 +40,9 @@ class ListaProdutosActivity : AppCompatActivity() {
         configuraFab()
         lifecycleScope.launch {
             launch {
-                verificaUsuarioLogado()
-            }
-        }
-    }
-
-    private suspend fun verificaUsuarioLogado() {
-        dataStore.data.collect { preferences ->
-            preferences[stringPreferencesKey("userId")]?.let { userId ->
-                buscaUsuario(userId)
-            } ?: vaiParaLogin()
-        }
-    }
-
-    private fun buscaUsuario(userId: String) {
-        lifecycleScope.launch {
-            usuarioDao.buscaPorId(usuarioId = userId).firstOrNull().let {
-                launch {
+                usuario
+                    .filterNotNull()
+                    .collect {
                     buscaProdutosUsuario()
                 }
             }
@@ -85,19 +67,6 @@ class ListaProdutosActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun deslogaUsuario() {
-        lifecycleScope.launch {
-            dataStore.edit { preferences ->
-                preferences.remove(stringPreferencesKey("userId"))
-            }
-        }
-    }
-
-    private fun vaiParaLogin() {
-        vaiPara(LoginActivity::class.java)
-        finish()
     }
 
     private fun configuraFab() {
